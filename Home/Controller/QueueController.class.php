@@ -207,19 +207,20 @@ class QueueController extends Controller
     }
 	
 	/**
-	 *分红
+	 *分红 静态 小区动态 中区动态  总量不超本人持币的20% 或2000， 取最小值
 	 */
 	public function start_fh()
 	{
 		$sys_jtfh = M('sys_jtfh')->where(array('status=1'))->select(); //所有静态分红
-		$sys_dtfh = M('sys_dtfh')->where(array('status=1'))->select(); //所有动态分红
+		$sys_dtfh = M('sys_dtfh')->where(array('status=1'))->select(); //所有小区动态分红
+		$sys_dtfh_middle = M('sys_dtfh_middle')->where(array('status=1'))->select(); //所有中区动态分红
 		//所有币数
 		$user_coin = M('user_coin')->where(array('lth'=>array('gt',0)))->select();
         //核对每天只能分红一次
         $start = strtotime(date('Y-m-d'));
         $end = $start + 24*3600-1;
-		//个人分红上限 5000  或者是 个人持币对应区间的下限*50% 那个小按哪个为准
-		$limit = 5000; //		
+		//个人分红上限 2000  
+		$limit = 2000; //		
 		
 		$count = count($user_coin); //本次分红总人数 包括没有达到静态分红的最小值的情况
 		$jt_deal=0;//已处理的静态人数
@@ -227,6 +228,9 @@ class QueueController extends Controller
 		
 		foreach($user_coin as $coin)
 		{
+			$limit_coin = $coin['lth']*0.2; //最高是持币的20%或2000
+			$limit = ($limit>$limit_coin) ? $limit_coin : $limit;
+			
 			$yfh = 0; //已分红的币数
 			$gr_limit=0; //个人限制  个人分红上限 5000  或者是 个人持币对应区间的下限*50% 那个小按哪个为准
 			$limit1=0; //个人持币对应区间的下限*50%
@@ -248,18 +252,15 @@ class QueueController extends Controller
 				}
 			}
 			
-			if($jtfh){ //开始静态分红
-                if(in_array(1,$is_fh)){
-                    continue;
-                }
+			if($jtfh && !in_array(1,$is_fh)){ //开始静态分红
+                
 				$jt_num = $jtfh['bl'] * $coin['lth'] ; //考虑保留几位小数 TODO
                 $jt_num = sprintf("%.2f",substr(sprintf("%.4f", $jt_num), 0, -2)); //本次分红数量
-				$limit1 = $jtfh['minnum']*0.5;
-				$gr_limit = ($limit > $limit1) ? $limit1 : $limit;
+				
+				$gr_limit = ($limit > $jt_num) ? $jt_num : $limit;
 				//实际的分红数
 				$jt_num = ($jt_num + $yfh) > $gr_limit ? ($gr_limit - $yfh) : $jt_num;
-				//新增静态每次最多是108个
-				$jt_num = ($jt_num > 108) ? 108 : $jt_num ;
+				
                 $m = M();
 				$m->startTrans();
 				$rs = array();
@@ -284,51 +285,103 @@ class QueueController extends Controller
 			
 			//动态分红开始
             //保证每天只能分红一次
-            if(in_array(2,$is_fh)){
-                continue;
-            }
-			//获取动态分红的小区业绩
-			$yj = $this->get_xiaji($coin['userid']);
-			if(!$yj){ //没有业绩或只有一条线
+			//获取动态分红的区业绩
+			$users = M('user_zone')->where(array('pid'=>$coin['userid']))->order('zone asc')->select();
+			$yj = array();
+			foreach($users as $user){
+				$data = $this->get_xiaji($user['userid']);
+				$yj[]=$data;
+			}
+			//echo '<pre>';var_dump($yj);continue;
+			rsort($yj);
+			if(!$yj || count($yj) == 1){ //没有业绩或只有一条线
 			    continue;
-            }
-			foreach($sys_dtfh as $vv){
-				if((int)$coin['lth'] >= $vv['minnum'] && (int)$coin['lth'] <= $vv['maxnum']){
-					$dtfh = $vv;
-					break;
+            }elseif(count($yj) == 2){
+				$small = $yj[1]; //小区
+			}elseif(count($yj) == 3){
+				$middle = $yj[1]; //中区
+				$small = $yj[2]; //小区
+			}
+			
+			if($small >0 && !in_array(2,$is_fh)){
+				foreach($sys_dtfh as $vv){
+					if((int)$coin['lth'] >= $vv['minnum'] && (int)$coin['lth'] <= $vv['maxnum']){
+						$dtfh = $vv;
+						break;
+					}
+				}
+				if($dtfh){ //开始动态分红 保留两位小数				
+					$dt_num = $dtfh['bl'] * $small ; //本次分红的数量 动态是按小区业绩走的 考虑保留几位小数 TODO
+					$dt_num = sprintf("%.2f",substr(sprintf("%.4f", $dt_num), 0, -2));
+					
+					$gr_limit = ($limit > $dt_num) ? $dt_num : $limit;				
+					//实际的分红数
+					$dt_num = ($dt_num + $yfh) > $gr_limit ? ($gr_limit - $yfh) : $dt_num;
+					if($dt_num <=0){
+						continue;
+					}
+					$m = M();
+					$m->startTrans();
+					$rs = array();
+					$rs[] = $m->table('user_coin')->where(array('id'=>$coin['id']))->setInc('lth',$dt_num);
+					$rs[] = $m->table('sys_fh_log')->add(array(
+						'userid'=>$coin['userid'],
+						'type'=>2,
+						'current'=>$coin['lth'],
+						'fh_id'=>$dtfh['id'],
+						'bl'=>$dtfh['bl'],
+						'num'=>$dt_num,
+						'createdate'=>time()
+					));
+					if(check_arr($rs)){
+						$m->commit();
+						$dt_deal++;
+						$yfh += $dt_num;
+					}else{
+						$m->rollback();
+					}
 				}
 			}
-			if($dtfh){ //开始动态分红 保留两位小数				
-				$dt_num = $dtfh['bl'] * $yj ; //本次分红的数量 动态是按小区业绩走的 考虑保留几位小数 TODO
-                $dt_num = sprintf("%.2f",substr(sprintf("%.4f", $dt_num), 0, -2));
-				$limit1 = $dtfh['minnum']*0.5;
-				$gr_limit = ($limit > $limit1) ? $limit1 : $limit;				
-				//实际的分红数
-				$dt_num = ($dt_num + $yfh) > $gr_limit ? ($gr_limit - $yfh) : $dt_num;
-				if($dt_num <=0){
-					continue;
+			if($middle > 0 && !in_array(3,$is_fh)){
+				foreach($sys_dtfh_middle as $vvv){
+					if((int)$coin['lth'] >= $vvv['minnum'] && (int)$coin['lth'] <= $vvv['maxnum']){
+						$dtfh_1 = $vvv;
+						break;
+					}
 				}
-                $m = M();
-                $m->startTrans();
-                $rs = array();
-                $rs[] = $m->table('user_coin')->where(array('id'=>$coin['id']))->setInc('lth',$dt_num);
-                $rs[] = $m->table('sys_fh_log')->add(array(
-                    'userid'=>$coin['userid'],
-                    'type'=>2,
-                    'current'=>$coin['lth'],
-                    'fh_id'=>$dtfh['id'],
-                    'bl'=>$dtfh['bl'],
-                    'num'=>$dt_num,
-                    'createdate'=>time()
-                ));
-                if(check_arr($rs)){
-                    $m->commit();
-                    $dt_deal++;
-                    
-                }else{
-                    $m->rollback();
-                }
-            }
+				if($dtfh_1){ //开始动态分红 保留两位小数				
+					$dt_num = $dtfh_1['bl'] * $middle ; //本次分红的数量 动态是按中区业绩走的 考虑保留几位小数 TODO
+					$dt_num = sprintf("%.2f",substr(sprintf("%.4f", $dt_num), 0, -2));
+					
+					$gr_limit = ($limit > $dt_num) ? $dt_num : $limit;				
+					//实际的分红数
+					$dt_num = ($dt_num + $yfh) > $gr_limit ? ($gr_limit - $yfh) : $dt_num;
+					if($dt_num <=0){
+						continue;
+					}
+					$m = M();
+					$m->startTrans();
+					$rs = array();
+					$rs[] = $m->table('user_coin')->where(array('id'=>$coin['id']))->setInc('lth',$dt_num);
+					$rs[] = $m->table('sys_fh_log')->add(array(
+						'userid'=>$coin['userid'],
+						'type'=>3,
+						'current'=>$coin['lth'],
+						'fh_id'=>$dtfh_1['id'],
+						'bl'=>$dtfh_1['bl'],
+						'num'=>$dt_num,
+						'createdate'=>time()
+					));
+					if(check_arr($rs)){
+						$m->commit();
+						$dt_deal++;
+						$yfh += $dt_num;
+					}else{
+						$m->rollback();
+					}
+				}
+			}
+			
 		}
         //插入分红校验表 证明本次分红完成
         M('sys_fh_verify')->add(array(
@@ -340,22 +393,16 @@ class QueueController extends Controller
 		echo 'successful';
     }
 	
-	//获取两条线
+	//获取san条线
 	public function get_xiaji($userid)
 	{
-		$users = M('user_zone')->where(array('pid'=>$userid))->getField('userid',true);
-		if(count($users) <= 1){
+		if(!$userid){
 			return false;
 		}
-		//第一个区
-		$users_a = $this->get_small_zone($users[0]);
-		//第二个区
-		$users_b = $this->get_small_zone($users[1]);
-		$qu_1_total = M('user_coin')->where(array('userid'=>array('in',$users_a)))->sum('lth');
-		$qu_2_total = M('user_coin')->where(array('userid'=>array('in',$users_b)))->sum('lth');
-		$xiaoqu = $qu_1_total > $qu_2_total ? $qu_2_total : $qu_1_total;//小区总持币数
-		
-		return $xiaoqu;
+			
+		$users = $this->get_small_zone($userid);
+		$qu_total = M('user_coin')->where(array('userid'=>array('in',$users)))->sum('lth');
+		return $qu_total;
 	}
 	//获取小区用户
 	public function get_small_zone($userid,$new=true)

@@ -216,8 +216,12 @@ class FinanceController extends CommonController {
 		if(!$user['finance_status']){
 			echo ajax_return(1,'暂时无法提币，请联系管理人员');exit;
 		}
+		
+		session($phone.'myzc',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
         $code = mt_rand(10000, 99999);
-        $result = send_sms('72713', $phone, $code);
+        $result = send_sms('79413', $phone, $code);
         if ($result['info'] == 'success') {
             session($phone . 'myzc', $code);
             echo ajax_return(1, '短信验证码发送成功');

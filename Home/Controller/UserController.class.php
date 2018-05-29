@@ -31,6 +31,9 @@ class UserController extends CommonController {
 			}elseif($user['zone'] == 2){
 				//第二个区
 				$users_b = $this->get_small_zone($user['userid']);
+			}elseif($user['zone'] == 3){
+				//第二个区
+				$users_c = $this->get_small_zone($user['userid']);
 			}
 		}
 		if($users_a){
@@ -39,7 +42,10 @@ class UserController extends CommonController {
 		if($users_b){
 			$qu_2_total = M('user_coin')->where(array('userid'=>array('in',$users_b)))->sum('lth');
 		}
-		return array('yiqu'=>$qu_1_total,'erqu'=>$qu_2_total);
+		if($users_c){
+			$qu_3_total = M('user_coin')->where(array('userid'=>array('in',$users_c)))->sum('lth');
+		}
+		return array('yiqu'=>$qu_1_total,'erqu'=>$qu_2_total,'sanqu'=>$qu_3_total);
 	}
 	//获取小区用户
 	public function get_small_zone($userid,$new=true)
@@ -108,8 +114,13 @@ class UserController extends CommonController {
 		if(session($phone.'password')){
 			echo ajax_return(1,'短信验证码发送成功,请勿频繁发送');exit;
 		}
+		
+		session($phone.'password',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
+		
         $code = mt_rand(10000,99999);
-        $result = send_sms('72713',$phone,$code);
+        $result = send_sms('79413',$phone,$code);
         if($result['info'] == 'success'){
             session($phone.'password',$code);
             echo ajax_return(1,'短信验证码发送成功');
@@ -159,8 +170,13 @@ class UserController extends CommonController {
 		if(session($phone.'paypassword')){
 			echo ajax_return(1,'短信验证码发送成功,请勿频繁发送');exit;
 		}
+		
+		session($phone.'paypassword',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
+		
         $code = mt_rand(10000,99999);
-        $result = send_sms('72713',$phone,$code);
+        $result = send_sms('79413',$phone,$code);
         if($result['info'] == 'success'){
             session($phone.'paypassword',$code);
             echo ajax_return(1,'短信验证码发送成功');
@@ -224,8 +240,13 @@ class UserController extends CommonController {
 		if(session($phone.'chg')){
 			echo ajax_return(1,'短信验证码发送成功,请勿频繁发送');exit;
 		}
+		
+		session($phone.'chg',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
+		
         $code = mt_rand(10000,99999);
-        $result = send_sms('72713',$phone,$code);
+        $result = send_sms('79413',$phone,$code);
         if($result['info'] == 'success'){
             session($phone.'chg',$code);
             echo ajax_return(1,'短信验证码发送成功');

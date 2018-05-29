@@ -21,8 +21,12 @@ class LoginController extends Controller
             echo ajax_return(0, '手机号未注册');
             exit;
         }
+		
+		session($phone.'login',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
         $code = mt_rand(10000, 99999);
-        $result = send_sms('72923', $phone, $code);
+        $result = send_sms('79413', $phone, $code);
         if ($result['info'] == 'success') {
             session($phone . 'login', $code);
             echo ajax_return(1, '短信验证码发送成功');
@@ -96,8 +100,12 @@ class LoginController extends Controller
             echo ajax_return(0, '手机号不存在');
             exit;
         }
+		
+		session($phone.'find',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+		
         $code = mt_rand(10000, 99999);
-        $result = send_sms('72713', $phone, $code);
+        $result = send_sms('79413', $phone, $code);
         if ($result['info'] == 'success') {
             session($phone . 'find', $code);
             echo ajax_return(1, '短信验证码发送成功');
@@ -150,8 +158,12 @@ class LoginController extends Controller
         if($id){
             echo ajax_return(0,'手机号已注册');exit;
         }
-        $code = mt_rand(10000,99999);
-        $result = send_sms('72695',$phone,$code);
+		
+		session($phone.'reg',123);
+        echo ajax_return(1,'短信验证码发送成功,测试验证码是123');exit;
+        
+		$code = mt_rand(10000,99999);
+        $result = send_sms('79413',$phone,$code);
         if($result['info'] == 'success'){
             session($phone.'reg',$code);
             echo ajax_return(1,'短信验证码发送成功');
@@ -264,12 +276,13 @@ class LoginController extends Controller
 
         }else{
 			//新增如果推荐人下面没有人 不管提交的zone是哪个区 默认为1区
-			$user_zone = M('user_zone')->where(array('pid'=>$pid))->find();
+			$shangji = M('user_zone')->where(array('userid'=>$pid))->find();
+			$user_zone = M('user_zone')->where(array('pid'=>$pid,'zone'=>$zone))->find();
 			if(!$user_zone){
-				$zone = 1;
-				$res = M('user_zone')->add(array('userid'=>$userid,'ownid'=>$ownid,'pid'=>$pid,'zone'=>1,'level'=>1,'pids'=>$pid.','));
+				//$zone = 1; //这儿是默认1区，
+				$res = M('user_zone')->add(array('userid'=>$userid,'ownid'=>$ownid,'pid'=>$pid,'zone'=>$zone,'level'=>$shangji['level']+1,'pids'=>$shangji['pids'] . $userid . ','));
 			}else{
-				$res = $this->add_zone($userid,$ownid,$zone,$pid,$zone);
+				$res = $this->add_zone($userid,$ownid,$user_zone['userid'],$zone); //此处的第三个参数是指 要放的pid的指定区的会员下面的最大区
 			}
             
 
@@ -286,16 +299,21 @@ class LoginController extends Controller
      */
     private function add_zone($userid,$ownid,$pid,$zone)
     {
-		$users = M('user_zone')->where(array('pid'=>$pid))->select();
+		$users = M('user_zone')->where(array('pid'=>$pid))->order('zone asc')->select(); //按 1 2 3 区排序
+		if(!$users){
+			$shangji = M('user_zone')->where(array('userid'=>$pid))->find();
+			$res = M('user_zone')->add(array('userid'=>$userid,'ownid'=>$ownid,'pid'=>$pid,'zone'=>1,'level'=>$shangji['level']+1,'pids'=>$shangji['pids'] . $userid . ','));
+			return $res;
+		}
 		$zones = array();//所有区信息
 		$biger = 0; //大区的用户id
-		$tmp=0;
+		$tmp = -1; //考虑下面区业绩是0 所以给默认值是负值 必须
 		foreach($users as $user){
 			$data = $this->get_xiaji($user['userid']);
 			$zones[$user['userid']]=$data;
 		}
 		foreach($zones as $k=>$v){
-			if($v>=$tmp){
+			if($v>$tmp){ //不能用大于等于 因为默认给1区分
 				$tmp = $v;
 				$biger = $k;
 			}
@@ -304,12 +322,13 @@ class LoginController extends Controller
 		//添加到这人的最下面
 		$map['_string']="FIND_IN_SET($biger,pids)";
 		$deth = M('user_zone')->where($map)->order('level desc')->find();
-		
-		
+		//此处放到最大区的最小面，貌似一直就是1区的位置。。 这个逻辑有点。。
+		$res = M('user_zone')->add(array('userid'=>$userid,'ownid'=>$ownid,'pid'=>$deth['userid'],'zone'=>1,'level'=>$deth['level']+1,'pids'=>$deth['pids'].$userid.','));
+		return $res;
     }
 	//获取三条线
 	public function get_xiaji($userid)
-	{
+	{		
 		$users = $this->get_small_zone($userid);
 		$qu_total = M('user_coin')->where(array('userid'=>array('in',$users)))->sum('lth');
 		return $qu_total;

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2018-05-28 17:56:38
+Date: 2018-05-29 17:51:07
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -32,11 +32,7 @@ CREATE TABLE `admin` (
 -- ----------------------------
 -- Records of admin
 -- ----------------------------
-INSERT INTO `admin` VALUES ('1', 'admin', 'e10adc3949ba59abbe56e057f20f883e', '127.0.0.1', '1526889673', '超级管理员');
-INSERT INTO `admin` VALUES ('3', '测试', 'e10adc3949ba59abbe56e057f20f883e', '127.0.0.1', '1525239253', '');
-INSERT INTO `admin` VALUES ('4', '财务', 'e10adc3949ba59abbe56e057f20f883e', null, null, '');
-INSERT INTO `admin` VALUES ('5', 'kang', 'e10adc3949ba59abbe56e057f20f883e', '115.60.144.144', '1526268532', '');
-INSERT INTO `admin` VALUES ('6', '桃子', 'e10adc3949ba59abbe56e057f20f883e', '115.60.144.144', '1526264167', '');
+INSERT INTO `admin` VALUES ('1', 'admin', 'e10adc3949ba59abbe56e057f20f883e', '127.0.0.1', '1527576131', '超级管理员');
 
 -- ----------------------------
 -- Table structure for admin_auth_group
@@ -53,7 +49,7 @@ CREATE TABLE `admin_auth_group` (
 -- ----------------------------
 -- Records of admin_auth_group
 -- ----------------------------
-INSERT INTO `admin_auth_group` VALUES ('1', '超级管理员', '1', '1,2,3,4,5,6,7,8,9,10,11,56,57,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,58,53,54,55,59,60,61,62,63,64,65,66,67');
+INSERT INTO `admin_auth_group` VALUES ('1', '超级管理员', '1', '1,2,3,4,5,6,7,8,9,10,11,56,57,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,58,68,69,70,71,72,73,53,54,55,59,60,61,62,63,64,65,66,67');
 INSERT INTO `admin_auth_group` VALUES ('2', '普通管理员', '1', '53,54,55');
 INSERT INTO `admin_auth_group` VALUES ('3', '财务', '1', '1,2,3,4,5,6,7,8,9,10,11,56,12,13,14,15,16');
 
@@ -95,7 +91,7 @@ CREATE TABLE `admin_auth_rule` (
   `condition` char(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of admin_auth_rule
@@ -146,7 +142,7 @@ INSERT INTO `admin_auth_rule` VALUES ('43', '41', 'System/Ajax_sys_jtfh_add', '�
 INSERT INTO `admin_auth_rule` VALUES ('44', '41', 'System/Sys_jtfh_edit', '编辑页面', 'System', 'Sys_jtfh_edit', '3', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('45', '41', 'System/Ajax_sys_jtfh_edit', '编辑提交', 'System', 'Ajax_sys_jtfh_edit', '3', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('46', '41', 'System/Ajax_sys_jtfh_del', '删除', 'System', 'Ajax_sys_jtfh_del', '3', '1', '1', '');
-INSERT INTO `admin_auth_rule` VALUES ('47', '39', 'System/Sys_dtfh', '动态分红', 'System', 'Sys_dtfh', '2', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('47', '39', 'System/Sys_dtfh', '小区动态分红', 'System', 'Sys_dtfh', '2', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('48', '47', 'System/Sys_dtfh_add', '添加页面', 'System', 'Sys_dtfh_add', '3', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('49', '47', 'System/Ajax_sys_dtfh_add', '添加提交', 'System', 'Ajax_sys_dtfh_add', '3', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('50', '47', 'System/Sys_dtfh_edit', '编辑页面', 'System', 'Sys_dtfh_edit', '3', '1', '1', '');
@@ -167,6 +163,12 @@ INSERT INTO `admin_auth_rule` VALUES ('64', '59', 'Charge/Ajax_charge_edit', '�
 INSERT INTO `admin_auth_rule` VALUES ('65', '59', 'Charge/Ajax_charge_del', '删除', 'Charge', 'Ajax_charge_del', '2', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('66', '59', 'Charge/Ajax_charge_zhixing', '执行扣费', 'Charge', 'Ajax_charge_zhixing', '2', '1', '1', '');
 INSERT INTO `admin_auth_rule` VALUES ('67', '59', 'Charge/Charge_log', '扣费日志', 'Charge', 'Charge_log', '2', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('68', '39', 'System/Sys_dtfh_middle', '中区动态分红', 'System', 'Sys_dtfh_middle', '2', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('69', '68', 'System/Sys_dtfh_middle_add', '添加页面', 'System', 'Sys_dtfh_middle_add', '3', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('70', '68', 'System/Ajax_sys_dtfh_middle_add', '添加提交', 'System', 'Ajax_sys_dtfh_middle_add', '3', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('71', '68', 'System/Sys_dtfh_middle_edit', '编辑页面', 'System', 'Sys_dtfh_middle_edit', '3', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('72', '68', 'System/Ajax_sys_dtfh_middle_edit', '编辑提交', 'System', 'Ajax_sys_dtfh_middle_edit', '3', '1', '1', '');
+INSERT INTO `admin_auth_rule` VALUES ('73', '68', 'System/Ajax_sys_dtfh_middle_del', '删除', 'System', 'Ajax_sys_dtfh_del', '3', '1', '1', '');
 
 -- ----------------------------
 -- Table structure for banner
@@ -358,17 +360,38 @@ CREATE TABLE `sys_dtfh` (
   `bl` decimal(6,4) DEFAULT NULL,
   `status` tinyint(4) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='动态分红设置';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='动态分红设置';
 
 -- ----------------------------
 -- Records of sys_dtfh
 -- ----------------------------
 INSERT INTO `sys_dtfh` VALUES ('1', '100', '500', '0.0012', '1');
-INSERT INTO `sys_dtfh` VALUES ('2', '501', '1000', '0.0015', '1');
+INSERT INTO `sys_dtfh` VALUES ('2', '501', '1000', '0.0017', '1');
 INSERT INTO `sys_dtfh` VALUES ('3', '1001', '3000', '0.0022', '1');
 INSERT INTO `sys_dtfh` VALUES ('4', '3001', '5000', '0.0027', '1');
-INSERT INTO `sys_dtfh` VALUES ('5', '5001', '10000', '0.0031', '1');
-INSERT INTO `sys_dtfh` VALUES ('6', '10001', '210000000', '0.0036', '1');
+INSERT INTO `sys_dtfh` VALUES ('5', '5001', '10000000', '0.0031', '1');
+
+-- ----------------------------
+-- Table structure for sys_dtfh_middle
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_dtfh_middle`;
+CREATE TABLE `sys_dtfh_middle` (
+  `id` int(4) NOT NULL AUTO_INCREMENT,
+  `minnum` int(8) DEFAULT NULL,
+  `maxnum` int(8) DEFAULT NULL,
+  `bl` decimal(6,4) DEFAULT NULL,
+  `status` tinyint(4) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='中区动态分红设置';
+
+-- ----------------------------
+-- Records of sys_dtfh_middle
+-- ----------------------------
+INSERT INTO `sys_dtfh_middle` VALUES ('1', '100', '500', '0.0010', '1');
+INSERT INTO `sys_dtfh_middle` VALUES ('2', '501', '1000', '0.0012', '1');
+INSERT INTO `sys_dtfh_middle` VALUES ('3', '1001', '3000', '0.0015', '1');
+INSERT INTO `sys_dtfh_middle` VALUES ('4', '3001', '5000', '0.0018', '1');
+INSERT INTO `sys_dtfh_middle` VALUES ('5', '5001', '10000000', '0.0021', '1');
 
 -- ----------------------------
 -- Table structure for sys_fh_log
@@ -377,7 +400,7 @@ DROP TABLE IF EXISTS `sys_fh_log`;
 CREATE TABLE `sys_fh_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userid` int(6) NOT NULL,
-  `type` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1是静态 2是动态',
+  `type` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1是静态 2是小区动态 3是中区动态',
   `current` decimal(16,4) DEFAULT NULL COMMENT '当前币',
   `fh_id` tinyint(2) DEFAULT NULL COMMENT '当前满足的分红id',
   `bl` varchar(7) DEFAULT NULL,
@@ -421,17 +444,16 @@ CREATE TABLE `sys_jtfh` (
   `bl` decimal(6,4) DEFAULT NULL,
   `status` tinyint(4) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='静态分红设置';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='静态分红设置';
 
 -- ----------------------------
 -- Records of sys_jtfh
 -- ----------------------------
-INSERT INTO `sys_jtfh` VALUES ('1', '100', '500', '0.0012', '1');
-INSERT INTO `sys_jtfh` VALUES ('2', '501', '1000', '0.0017', '1');
-INSERT INTO `sys_jtfh` VALUES ('3', '1001', '3000', '0.0022', '1');
-INSERT INTO `sys_jtfh` VALUES ('4', '3001', '5000', '0.0027', '1');
-INSERT INTO `sys_jtfh` VALUES ('5', '5001', '10000', '0.0031', '1');
-INSERT INTO `sys_jtfh` VALUES ('6', '10001', '210000000', '0.0036', '1');
+INSERT INTO `sys_jtfh` VALUES ('1', '100', '500', '0.0010', '1');
+INSERT INTO `sys_jtfh` VALUES ('2', '501', '1000', '0.0012', '1');
+INSERT INTO `sys_jtfh` VALUES ('3', '1001', '3000', '0.0015', '1');
+INSERT INTO `sys_jtfh` VALUES ('4', '3001', '5000', '0.0018', '1');
+INSERT INTO `sys_jtfh` VALUES ('5', '5001', '10000000', '0.0021', '1');
 
 -- ----------------------------
 -- Table structure for user
@@ -456,11 +478,13 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`) USING BTREE,
   UNIQUE KEY `phone` (`phone`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
+INSERT INTO `user` VALUES ('1', '0', 'yolostar', '123', 'e10adc3949ba59abbe56e057f20f883e', 'e10adc3949ba59abbe56e057f20f883e', '系统账户', null, null, '1', null, null, null, '1', '0.00000');
+INSERT INTO `user` VALUES ('2', '1', '15890143123', '15890143123', 'e10adc3949ba59abbe56e057f20f883e', '96e79218965eb72c92a549dd5a330112', '123', null, '1527587367', '1', null, null, null, '1', '0.00000');
 
 -- ----------------------------
 -- Table structure for user_coin
@@ -477,11 +501,13 @@ CREATE TABLE `user_coin` (
   UNIQUE KEY `userid` (`userid`) USING BTREE,
   KEY `lthb` (`lthb`),
   KEY `lth` (`lth`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user_coin
 -- ----------------------------
+INSERT INTO `user_coin` VALUES ('1', '1', '0.0000', '0.0000', '', '0.0000');
+INSERT INTO `user_coin` VALUES ('2', '2', '0.0000', '0.0000', 'XSrczjDcfT74OS2EGKHQpWGUZBWve5IM', '0.0000');
 
 -- ----------------------------
 -- Table structure for user_qianbao
@@ -514,9 +540,12 @@ CREATE TABLE `user_zone` (
   `level` int(10) DEFAULT '1' COMMENT '第几层',
   `pids` text COMMENT '上级节点人id集合',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `rex` (`pid`,`zone`),
   KEY `pid` (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员分布\r\n';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='会员分布\r\n';
 
 -- ----------------------------
 -- Records of user_zone
 -- ----------------------------
+INSERT INTO `user_zone` VALUES ('1', '1', '0', '0', '0', '1', '1,');
+INSERT INTO `user_zone` VALUES ('2', '2', '1', '1', '1', '2', '1,2,');

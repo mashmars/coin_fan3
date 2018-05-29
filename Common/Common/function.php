@@ -42,7 +42,7 @@ function send_sms($tpl_id,$phone,$captcha,$name='',$money=0){
         $tpl_value = '#code#='. $captcha ;
     }
     $smsConf = array(
-        'key'   => 'e3e6ac7d6e49eb2a0aab644c2ab4441b', //您申请的APPKEY
+        'key'   => '4a0ef3fcaa7fdc00734ce62f23769e09', //您申请的APPKEY
         'mobile'    => $phone, //接受短信的用户手机号码
         'tpl_id'    => $tpl_id, //您申请的短信模板ID，根据实际情况修改
         'tpl_value' => $tpl_value//您设置的模板变量，根据实际情况修改
